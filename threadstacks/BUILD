@@ -6,6 +6,7 @@ cc_library(
             "//common:defer",
             "//common:sysutil",
             "//common:types",
+            "@com_google_absl//absl/debugging:symbolize",
             "//external:glog", ],
     linkopts = ["-lunwind"],
     visibility = ["//visibility:public"],

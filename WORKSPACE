@@ -1,3 +1,5 @@
+workspace(name = "ts")
+
 new_git_repository(
     name = "googletest",
     build_file = "googletest.BUILD",
@@ -30,5 +32,5 @@ new_git_repository(
 
 bind(
     name = "glog",
-    actual = "@com_github_glog_glog//:glog",
+    actual = "@com_github_google_glog//:glog",
 )
