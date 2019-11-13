@@ -1,8 +1,10 @@
 // Copyright: ThoughtSpot Inc 2017
 // Author: Nipun Sehrawat (nipun@thoughtspot.com)
 
-#include "threadstacks/signal_handler.h"
+// Edited: Pixie Labs Inc. 2019 (zasgar@pixielabs.ai)
 
+#include "threadstacks/signal_handler.h"
+#include "absl/debugging/symbolize.h"
 #include <fcntl.h>
 // The following #define makes libunwind use a faster unwinding mechanism.
 #define UNW_LOCAL_ONLY
@@ -27,13 +29,6 @@
 
 #include "common/defer.h"
 #include "common/sysutil.h"
-
-namespace google {
-// Symbolize() is provided by the glog library but it's not exposed as a
-// public method via the glog headers. So we have an extern declaration
-// for it here.
-bool Symbolize(void* pc, char* out, int out_size);
-}  // namespace google
 
 namespace threadstacks {
 namespace {
@@ -132,23 +127,17 @@ void InternalHandler(int signum, siginfo_t* siginfo, void* ucontext) {
     return;
   }
 
-  unw_context_t context;
-  if (0 != unw_getcontext(&context)) {
-    ErrLog("StacktraceCollector: Failed to get current context\n");
-    // Note(nipun): Can nack the request here to provide an explicit failure
-    // notification to the sender.
-    return;
-  }
+  // NOTE(zasgar): Using the ucontext at unwind context is not strictly correct,
+  // but works on IA-64 ABI.
+  unw_context_t *context = reinterpret_cast<unw_context_t*>(ucontext);
   unw_cursor_t cursor;
-  if (0 != unw_init_local(&cursor, &context)) {
+  if (0 != unw_init_local(&cursor, context)) {
     ErrLog("StacktraceCollector: Failed to initialize unwinding cursor\n");
     // Note(nipun): Can nack the request here to provide an explicit failure
     // notification to the sender.
     return;
   }
 
-  // Skip the current function's frame.
-  unw_step(&cursor);
   while (unw_step(&cursor) > 0) {
     unw_word_t ip;
     if (0 == unw_get_reg(&cursor, UNW_REG_IP, &ip)) {
@@ -461,9 +450,15 @@ auto StackTraceCollector::Collect(std::string* error) -> std::vector<Result> {
     for (int i = 0; i < stack.depth; ++i) {
       std::ostringstream ss;
       char buffer[1024];
-      if (not google::Symbolize(reinterpret_cast<void*>(stack.address[i]),
-                                buffer,
-                                sizeof buffer)) {
+      // Note(zasgar): This is a bit hacky, but if symbolization fails we try to symbolize
+      // PC - 1. This is because the address might actually be the return value. Strictly,
+      // this only applies to the last PC so we can probably make this more robust.
+      if (!(absl::Symbolize(reinterpret_cast<char*>(stack.address[i]),
+                            buffer,
+                            sizeof buffer) ||
+            absl::Symbolize(reinterpret_cast<char*>(stack.address[i]) - 1,
+                            buffer,
+                            sizeof buffer))) {
         r.trace.emplace_back(stack.address[i], kUnknown);
       } else {
         r.trace.emplace_back(stack.address[i], buffer);
