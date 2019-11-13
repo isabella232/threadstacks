@@ -1,4 +1,8 @@
 #include "threadstacks/stack_tracer.h"
+// Copyright: Pixie Labs Inc 2019
+// Author: Zain Asgar(zasgar@pixielabs.ai)
+
+// Inspired by Envoy BackwardsTrace, but uses libunwind instead.
 
 // The following #define makes libunwind use a faster unwinding mechanism.
 #define UNW_LOCAL_ONLY
