@@ -7,7 +7,7 @@ cc_library(
             "//common:sysutil",
             "//common:types",
             "@com_google_absl//absl/debugging:symbolize",
-            "//external:glog", ],
+            "@com_github_google_glog//:glog", ],
     linkopts = ["-lunwind"],
     visibility = ["//visibility:public"],
 )
