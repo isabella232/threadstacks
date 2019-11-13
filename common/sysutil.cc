@@ -9,7 +9,7 @@
 #include <string>
 #include "common/defer.h"
 
-namespace thoughtspot {
+namespace threadstacks {
 namespace common {
 namespace {
 const char* kSelfTaskDir = "/proc/self/task";
@@ -69,4 +69,4 @@ std::vector<pid_t> Sysutil::ListThreads() {
 }
 
 }  // namespace common
-}  // namespace thoughtspot
+}  // namespace threadstacks

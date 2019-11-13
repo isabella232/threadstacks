@@ -8,7 +8,7 @@
 #include <vector>
 #include <utility>
 
-namespace thoughtspot {
+namespace threadstacks {
 namespace common {
 
 // A ScopedLambda is a simple wrapper around a lambda which ensures execution
@@ -54,7 +54,7 @@ ScopedLambda<FnType> MakeScopedLambda(FnType fn) {
 }
 
 }  // namespace common
-}  // namespace thoughtspot
+}  // namespace threadstacks
 
 // ScopedLambda can often be quite verbose. DEFER is modeled on the defer
 // keyword introduced by Go which is a way of deferring the execution of

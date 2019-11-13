@@ -5,7 +5,7 @@
 #define COMMON_CHANNEL_H_
 
 
-namespace thoughtspot {
+namespace threadstacks {
 namespace common {
 
 // Channel is a communication primitive for building concurrent applications. It
@@ -70,6 +70,6 @@ class Channel {
 };
 
 }  // namespace common
-}  // namespace thoughtspot
+}  // namespace threadstacks
 
 #endif  // COMMON_CHANNEL_H_

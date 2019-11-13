@@ -35,7 +35,7 @@
 // 3. Read the value.
 // 4. Notify the writer (which is guaranteed to be waiting for the reader) that
 //    reader entered the zone and consumed the value.
-namespace thoughtspot {
+namespace threadstacks {
 namespace common {
 template <typename ValueType>
 class UnbufferedChannel : public Channel<ValueType> {
@@ -200,6 +200,6 @@ template <typename T>
 constexpr int64_t UnbufferedChannel<T>::kInifinity;
 
 }  // namespace common
-}  // namespace thoughtspot
+}  // namespace threadstacks
 
 #endif  // COMMON_UNBUFFERED_CHANNEL_H_

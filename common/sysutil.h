@@ -8,7 +8,7 @@
 #include <unistd.h>
 #include <vector>
 
-namespace thoughtspot {
+namespace threadstacks {
 namespace common {
 
 class Sysutil {
@@ -19,6 +19,6 @@ class Sysutil {
 };
 
 }  // namespace common
-}  // namespace thoughtspot
+}  // namespace threadstacks
 
 #endif  // COMMON_SYSUTIL_H_

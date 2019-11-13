@@ -4,7 +4,7 @@
 #include "common/defer.h"
 #include "gtest/gtest.h"
 
-namespace thoughtspot {
+namespace threadstacks {
 namespace common {
 namespace {
 
@@ -95,4 +95,4 @@ TEST(Defer, InitializerLists) {
 
 }  // namespace
 }  // namespace common
-}  // namespace thoughtspot
+}  // namespace threadstacks

@@ -35,7 +35,7 @@ namespace google {
 bool Symbolize(void* pc, char* out, int out_size);
 }  // namespace google
 
-namespace thoughtspot {
+namespace threadstacks {
 namespace {
 
 // Stack trace of a thread.
@@ -529,4 +529,4 @@ bool StackTraceSignal::InstallExternalHandler() {
   return 0 == sigaction(StackTraceSignal::ExternalSignum(), &action, nullptr);
 }
 
-}  // namespace thoughtspot
+}  // namespace threadstacks

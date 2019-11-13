@@ -12,7 +12,7 @@
 
 #include "common/types.h"
 
-namespace thoughtspot {
+namespace threadstacks {
 
 // A StackTraceCollector can be used for collecting stack traces of all threads
 // running in the current process.
@@ -61,6 +61,6 @@ class StackTraceSignal {
   // traces of all threads upon receiving a fatal signal.
 };
 
-}  // namespace thoughtspot
+}  // namespace threadstacks
 
 #endif  // THREADSTACKS_SIGNAL_HANDLER_H_

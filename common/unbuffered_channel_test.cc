@@ -16,7 +16,7 @@
 
 using testing::UnorderedElementsAreArray;
 
-namespace thoughtspot {
+namespace threadstacks {
 namespace common {
 namespace {
 
@@ -594,4 +594,4 @@ TEST(UnbufferedChannel, Stress_SetEquality) {
 
 }  // namespace
 }  // namespace common
-}  // namespace thoughtspot
+}  // namespace threadstacks

@@ -25,9 +25,9 @@ using testing::AllOf;
 using testing::Gt;
 using testing::IsEmpty;
 using testing::Le;
-using thoughtspot::common::UnbufferedChannel;
+using threadstacks::common::UnbufferedChannel;
 
-namespace thoughtspot {
+namespace threadstacks {
 namespace {
 
 int64_t GetTid() { return syscall(SYS_gettid); }
@@ -781,12 +781,12 @@ TEST_F(StackTraceCollectorTest, Correctness) {
 }
 
 }  // namespace
-}  // namespace thoughtspot
+}  // namespace threadstacks
 
 int main(int argc, char** argv) {
   ::testing::InitGoogleTest(&argc, argv);
-  if (thoughtspot::StackTraceSignal::InstallInternalHandler() &&
-      thoughtspot::StackTraceSignal::InstallExternalHandler()) {
+  if (threadstacks::StackTraceSignal::InstallInternalHandler() &&
+      threadstacks::StackTraceSignal::InstallExternalHandler()) {
     return RUN_ALL_TESTS();
   }
   std::cerr << "Failed to install signal handlers" << std::endl;
