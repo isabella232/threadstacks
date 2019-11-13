@@ -11,6 +11,7 @@
 #include <vector>
 
 #include "common/types.h"
+#include "threadstacks/stack_tracer.h"
 
 namespace threadstacks {
 
@@ -22,7 +23,8 @@ class StackTraceCollector {
   struct Result {
     // Stacktrace as a collection of (address, symbol) pairs. The first element
     // in the vector is the top of the stacktrace.
-    std::vector<std::pair<int64_t, std::string>> trace;
+    //    std::vector<std::pair<int64_t, std::string>> trace;
+    ThreadStack trace;
     // List of tids that share the above stack trace.
     std::vector<pid_t> tids;
   };

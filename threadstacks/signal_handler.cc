@@ -1,5 +1,4 @@
-// Copyright: ThoughtSpot Inc 2017
-// Author: Nipun Sehrawat (nipun@thoughtspot.com)
+
 
 // Edited: Pixie Labs Inc. 2019 (zasgar@pixielabs.ai)
 
@@ -29,21 +28,10 @@
 
 #include "common/defer.h"
 #include "common/sysutil.h"
+#include "threadstacks/stack_tracer.h"
 
 namespace threadstacks {
 namespace {
-
-// Stack trace of a thread.
-struct ThreadStack {
-  // Maximum depth allowed for a stack trace.
-  static constexpr int kMaxDepth = 100;
-  // Thread id of the thread.
-  int tid = -1;
-  // The stack trace, in term of memory addresses.
-  int64_t address[kMaxDepth];
-  // Actual depth of the stack trace.
-  int depth = 0;
-};
 
 // A form sent by StackTraceCollector to threads to fill in their stack trace
 // and submit the results. Note that methods of this class invoked by signal
@@ -55,11 +43,13 @@ class StackTraceForm {
   ~StackTraceForm() = default;
 
   // Adds an address to the stack trace.
-  bool AddAddress(int64_t address) {
+  bool AddInfo(int64_t size, int64_t address) {
     if (stack_.depth >= ThreadStack::kMaxDepth) {
       return false;
     }
-    stack_.address[stack_.depth++] = address;
+    stack_.sizes[stack_.depth] = size;
+    stack_.address[stack_.depth] = address;
+    stack_.depth++;
     return true;
   }
 
@@ -127,27 +117,12 @@ void InternalHandler(int signum, siginfo_t* siginfo, void* ucontext) {
     return;
   }
 
-  // NOTE(zasgar): Using the ucontext at unwind context is not strictly correct,
-  // but works on IA-64 ABI.
-  unw_context_t *context = reinterpret_cast<unw_context_t*>(ucontext);
-  unw_cursor_t cursor;
-  if (0 != unw_init_local(&cursor, context)) {
-    ErrLog("StacktraceCollector: Failed to initialize unwinding cursor\n");
-    // Note(nipun): Can nack the request here to provide an explicit failure
-    // notification to the sender.
-    return;
-  }
+  BackwardsTrace trace;
+  trace.Capture(ucontext);
+  trace.stack().Visit([&](int, int size, int64_t addr) {
+                form->AddInfo(size, reinterpret_cast<int64_t>(addr));
+                      });
 
-  while (unw_step(&cursor) > 0) {
-    unw_word_t ip;
-    if (0 == unw_get_reg(&cursor, UNW_REG_IP, &ip)) {
-      if (not form->AddAddress(static_cast<int64_t>(ip))) {
-        break;
-      }
-    } else {
-      ErrLog("Failed to get instruction pointer...\n");
-    }
-  }
   if (not form->Submit()) {
     ErrLog("Failed to submit stacktrace form...\n");
   }
@@ -446,24 +421,7 @@ auto StackTraceCollector::Collect(std::string* error) -> std::vector<Result> {
     const auto& stack = e.first->stack();
     Result r;
     r.tids = e.second;
-    const char* kUnknown = "(unknown)";
-    for (int i = 0; i < stack.depth; ++i) {
-      std::ostringstream ss;
-      char buffer[1024];
-      // Note(zasgar): This is a bit hacky, but if symbolization fails we try to symbolize
-      // PC - 1. This is because the address might actually be the return value. Strictly,
-      // this only applies to the last PC so we can probably make this more robust.
-      if (!(absl::Symbolize(reinterpret_cast<char*>(stack.address[i]),
-                            buffer,
-                            sizeof buffer) ||
-            absl::Symbolize(reinterpret_cast<char*>(stack.address[i]) - 1,
-                            buffer,
-                            sizeof buffer))) {
-        r.trace.emplace_back(stack.address[i], kUnknown);
-      } else {
-        r.trace.emplace_back(stack.address[i], buffer);
-      }
-    }
+    r.trace = stack;
     results.push_back(r);
   }
   return results;
@@ -483,11 +441,10 @@ std::string StackTraceCollector::ToPrettyString(const std::vector<Result>& r) {
     }
     ss << *e.tids.rbegin() << std::endl;
     ss << "Stack trace:" << std::endl;
-    for (const auto& elem : e.trace) {
-      std::ostringstream addr;
-      addr << "0x" << std::hex << elem.first;
-      ss << std::setw(16) << addr.str() << " : " << elem.second << std::endl;
-    }
+    e.trace.PrettyPrint(
+        [&](const char *str) {
+          ss << str;
+        });
     ss << std::endl;
   }
   return ss.str();

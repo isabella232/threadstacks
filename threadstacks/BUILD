@@ -1,7 +1,7 @@
 cc_library(
     name = "signal_handler",
-    srcs = ["signal_handler.cc"],
-    hdrs = ["signal_handler.h"],
+    srcs = ["signal_handler.cc", "stack_tracer.cc"],
+    hdrs = ["signal_handler.h", "stack_tracer.h"],
     deps = ["//common:channel",
             "//common:defer",
             "//common:sysutil",
