@@ -52,4 +52,20 @@ private:
   ThreadStack stack_;
 };
 
+
+
+#define BACKTRACE_LOG()                                           \
+  do {                                                            \
+    ::threadstacks::BackwardsTrace trace;                         \
+    trace.Capture();                                              \
+    std::string res;                                              \
+    res += "-------------------------------------------------\n"; \
+    trace.stack().PrettyPrint(                                    \
+        [&res](const char *s) {                                   \
+          res += s;                                               \
+        });                                                       \
+    res += "-------------------------------------------------\n"; \
+    LOG(INFO) << "BACKTRACE: \n" << res;                          \
+  } while(0)
+
 }  // namespace threadstacks

@@ -101,7 +101,11 @@ void ThreadStack::PrettyPrint(const std::function<void(const char*)> writer) con
  */
 void BackwardsTrace::Capture() {
   unw_context_t context;
-  Capture(&context, /* skip_count */ 2);
+  if (0 != unw_getcontext(&context)) {
+    ErrLog("StacktraceCollector: Failed to get current context\n");
+    return;
+  }
+  Capture(&context, /* skip_count */ 0);
 }
 
 /*
