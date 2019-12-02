@@ -388,7 +388,7 @@ auto StackTraceCollector::Collect(std::string* error) -> std::vector<Result> {
   // Step 6: All acks have been received, post-process the data communicated by
   // threads and produce the final result.
   struct StackComparator {
-    bool operator()(StackTraceForm* a, StackTraceForm* b) {
+    bool operator()(StackTraceForm* a, StackTraceForm* b) const {
       const auto& astack = a->stack();
       const auto& bstack = b->stack();
       if (astack.depth != bstack.depth) {
