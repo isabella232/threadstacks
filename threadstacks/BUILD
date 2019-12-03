@@ -9,7 +9,6 @@ cc_library(
             ":stack_tracer",
             "@com_google_absl//absl/debugging:symbolize",
             "@com_github_google_glog//:glog", ],
-    linkopts = ["-lunwind"],
     visibility = ["//visibility:public"],
 )
 
@@ -21,7 +20,6 @@ cc_library(
         "@com_google_absl//absl/debugging:symbolize",
         "@com_github_google_glog//:glog",
     ],
-    linkopts = ["-lunwind"],
     visibility = ["//visibility:public"],
 )
 
@@ -31,5 +29,6 @@ cc_test(
     deps = [":signal_handler",
             "//common:sysutil",
             "//external:gtest"],
+    linkopts = ["-lunwind"],
     linkstatic = 1,
 )
