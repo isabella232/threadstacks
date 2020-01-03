@@ -343,7 +343,7 @@ auto StackTraceCollector::Collect(std::string* error) -> std::vector<Result> {
 
   // Step 4: Wait for all the acks, timing out after 5 seconds.
   int acks = 0;
-  while (acks < tids.size()) {
+  while (acks < static_cast<int>(tids.size())) {
     // Set operations on pipe_fd[0] to be non-blocking. This is important if the
     // select() on this fd returns, but the subsequent read block. This behaviour
     // is possible in exceptional cases, and when occurs would cause the entire

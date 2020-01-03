@@ -28,7 +28,13 @@ bool GetDirectoryContents(const std::string& directory,
   struct dirent* result = nullptr;
   int posix_error = 0;
   while (true) {
+
+    // readdir_r is dprecated so we supress the warning.
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
     posix_error = readdir_r(dir, &entry, &result);
+#pragma GCC diagnostic pop
+
     if (posix_error != 0 || result == nullptr) {
       break;
     }
